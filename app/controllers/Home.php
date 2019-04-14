@@ -6,7 +6,9 @@ class Home extends Controller
 {
      public function index (): void
     {
-        echo 'Hello world';
+        $sql = getSQL('country.sql');
+        $countries = $this->db->select($sql, ['region' => 'Eastern Europe'])->get();
+        vd($countries);
     }
 
 }
