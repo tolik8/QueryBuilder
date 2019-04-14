@@ -41,6 +41,7 @@ class QueryBuilderTest extends TestCase
         $sql = 'SELECT Code, Name, IndepYear FROM country WHERE Code = :code1 OR Code = :code2';
         $result = $this->db->select($sql)->bind($data)->get();
         if ($need_result === $result) {$assert = true;}
+            else {vd2($need_result); vd2($result);}
         $this->assertTrue($assert);
     }
 
@@ -58,6 +59,7 @@ class QueryBuilderTest extends TestCase
             ->orderBy('kadry_id')
             ->getSQL();
         if ($need_result === $result) {$assert = true;}
+            else {vd2($need_result); vd2($result);}
         $this->assertTrue($assert);
     }
 
@@ -68,6 +70,7 @@ class QueryBuilderTest extends TestCase
         $sql = 'SELECT Code, Name, IndepYear FROM country WHERE IndepYear IS NOT NULL ORDER BY IndepYear';
         $result = $this->db->select($sql)->first();
         if ($need_result === $result) {$assert = true;}
+            else {vd2($need_result); vd2($result);}
         $this->assertTrue($assert);
     }
 
@@ -78,6 +81,7 @@ class QueryBuilderTest extends TestCase
         $sql = 'SELECT Name FROM country WHERE region = \'North America\' AND population > 100000 ORDER BY Name';
         $result = $this->db->select($sql)->pluck('ID');
         if ($need_result === $result) {$assert = true;}
+            else {vd2($need_result); vd2($result);}
         $this->assertTrue($assert);
     }
 
@@ -88,6 +92,7 @@ class QueryBuilderTest extends TestCase
         $sql = 'SELECT Name FROM country WHERE Code = \'UKR\'';
         $result = $this->db->select($sql)->getCell();
         if ($need_result === $result) {$assert = true;}
+            else {vd2($need_result); vd2($result);}
         $this->assertTrue($assert);
     }
 }

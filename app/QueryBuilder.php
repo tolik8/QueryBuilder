@@ -2,15 +2,12 @@
 
 /*
  * select($sql, $data)->get();
- * insert($sql, $data);
- * update($sql, $data);
- * delete($sql, $data);
  * statement($sql, $data);
  *
- * ��������������/��������� SQL ��������
+ * Журналирование/прослушка SQL запросов
  * listen()-select()->get;
  *
- * ����������� SQL ��������
+ * Логирование SQL запросов
  * enableQueryLog();
  * disableQueryLog();
  *
@@ -19,43 +16,51 @@
  * rollback();
  *
  * table($tableName)->get();
- * ->field()
- * ->where()
- * ->groupBy()
- * ->having()
- * ->orderBy()
- * ->bind($data)
+ *** ->field()
+ *** ->where()
+ *** ->groupBy()
+ *** ->having()
+ *** ->orderBy()
+ *** ->bind($data)
+ *** insert($sql, $data);
+ *** update($sql, $data);
+ * updateOrInsert($sql, $data);
+ *** delete($sql, $data);
  *
- * ->get();
- * ->getCell();
- * ->first();
+ *** ->get();
+ *** ->getCell();
+ *** ->first();
  * ->pluck();
  *
- * getSQL();
+ *** getSQL();
  * getLastInsertId();
- * getAffectedRows(); ���������� ���������� ������� ����� INSERT, UPDATE, DELETE
- * getTimeExecution();
+ *** getAffectedRows(); Количество измененных записей после INSERT, UPDATE, DELETE
+ *** getTimeExecution();
  */
 
 namespace App;
 
 class QueryBuilder
 {
-    protected $pdo;
+    protected $affectedRows;
     protected $bindValues = [];
-    protected $sql;
-    protected $method;
-    protected $tableSQL;
+    protected $cr;
     protected $fieldSQL;
-    protected $whereSQL;
     protected $groupBySQL;
     protected $havingSQL;
+    protected $method; // конструктор или сырой RAW
     protected $orderSQL;
+    protected $pdo;
+    protected $sql;
+    protected $sql_time;
+    protected $tableSQL;
+    protected $whereSQL;
 
     public function __construct (\PDO $pdo)
     {
         $this->pdo = $pdo;
-        $this->fieldSQL = 'SELECT *';
+        $this->fieldSQL = '*';
+        $this->cr = chr(13) . chr(10);
     }
 
     public function select ($sql, $data = [])
@@ -69,19 +74,20 @@ class QueryBuilder
     public function table ($string)
     {
         $this->method = 'Constructor';
-        $this->fieldSQL = 'SELECT *';
-        $this->tableSQL = 'FROM ' . $string;
+        $this->fieldSQL = '*';
+        $this->tableSQL = $string;
         $this->whereSQL = null;
         $this->groupBySQL = null;
         $this->havingSQL = null;
         $this->orderSQL = null;
         $this->bindValues = [];
+        $this->affectedRows = 0;
         return $this;
     }
 
     public function field ($string = '*')
     {
-        $this->fieldSQL = 'SELECT ' . $string;
+        $this->fieldSQL = $string;
         return $this;
     }
 
@@ -115,38 +121,96 @@ class QueryBuilder
         return $this;
     }
 
-    /* �������� ��� ������ */
+    public function insert (array $data): int
+    {
+        if (isset($data[0]) && is_array($data[0])) {
+            $this->affectedRows = 0;
+            foreach ($data as $item) {
+                $this->affectedRows += $this->insertData($item);
+            }
+            return $this->affectedRows;
+        }
+
+        $this->affectedRows = $this->insertData($data);
+        return $this->affectedRows;
+    }
+
+    protected function insertData (array $data): int
+    {
+        $cr = $this->cr;
+        $keys = implode(', ', array_keys($data));
+        $values = ':' . implode(', :', array_keys($data));
+        $sql = 'INSERT INTO ' . $this->tableSQL . ' (' .$keys . ')' . $cr . 'VALUES (' . $values . ')';
+        $stmt = $this->executeSQL($sql, $data);
+        if ($stmt === null) {return 0;}
+        return $stmt->rowCount();
+    }
+
+    public function delete (array $data): int
+    {
+        $cr = $this->cr;
+        $string = $this->ParametersString($data);
+        /** @noinspection SqlWithoutWhere */
+        $sql = 'DELETE FROM ' . $this->tableSQL . $cr . 'WHERE ' . $string;
+        $stmt = $this->executeSQL($sql, $data);
+        if ($stmt === null) {return 0;}
+        $this->affectedRows = $stmt->rowCount();
+        return $this->affectedRows;
+    }
+
+    public function update (array $update, array $where): int
+    {
+        $cr = $this->cr;
+        $keys = array_keys($update);
+        $string = '';
+        foreach ($keys as $key) {$string .= $key . ' = :' . $key . ', ';}
+        $keys = rtrim($string, ', ');
+        $data = array_merge($update, $where);
+        $where_string = $this->ParametersString($where);
+        $sql = 'UPDATE ' . $this->tableSQL . $cr . 'SET ' . $keys . $cr . 'WHERE ' . $where_string;
+        $stmt = $this->executeSQL($sql, $data);
+        if ($stmt === null) {return 0;}
+        $this->affectedRows = $stmt->rowCount();
+        return $this->affectedRows;
+    }
+
+    /* Получить все записи */
     public function get (): array
     {
         $sql = $this->getSQL();
-        $stmt = $this->execute($sql, $this->bindValues);
+        $stmt = $this->executeSQL($sql, $this->bindValues);
+        if ($stmt === null) {return [];}
         return $stmt->fetchAll();
     }
 
-    /* �������� �������� ������� ������� ������ ������ */
+    /* Получить значение первого столпца первой строки */
     public function getCell ($field = '')
     {
         $this->fieldSQL = 'SELECT ' . $field;
         $sql = $this->getSQL();
-        $stmt = $this->execute($sql, $this->bindValues);
+        $stmt = $this->executeSQL($sql, $this->bindValues);
+        if ($stmt === null) {return null;}
         $row = $stmt->fetch(\PDO::FETCH_NUM);
         return $row[0];
     }
 
-    /* �������� ������ ������ */
+    /* Получить первую строку */
     public function first (): array
     {
         $sql = $this->getSQL();
-        $stmt = $this->execute($sql, $this->bindValues);
+        $stmt = $this->executeSQL($sql, $this->bindValues);
+        if ($stmt === null) {return [];}
         return $stmt->fetch();
     }
 
-    /* �������� ������ �������� ������ ������� */
-    public function pluck ($field): array
+    /* Получить массив значений одного столбца */
+    public function pluck ($key, $value = null): array
     {
-        $this->fieldSQL = 'SELECT ' . $field;
+        // TODO зробити метод pluck для одного та двох аргументів
+        $this->fieldSQL = 'SELECT ' . $key;
         $sql = $this->getSQL();
-        $stmt = $this->execute($sql, $this->bindValues);
+        $stmt = $this->executeSQL($sql, $this->bindValues);
+        if ($stmt === null) {return [];}
         $rows = $stmt->fetchAll(\PDO::FETCH_NUM);
         $result = [];
         foreach ($rows as $row) {
@@ -160,7 +224,7 @@ class QueryBuilder
         if ($this->method === 'Raw') {return $this->sql;}
 
         $cr = chr(13) . chr(10);
-        $sql = $this->fieldSQL . $cr . $this->tableSQL;
+        $sql = 'SELECT ' . $this->fieldSQL . $cr . 'FROM ' . $this->tableSQL;
         if ($this->whereSQL !== null) {$sql .= $cr . $this->whereSQL;}
         if ($this->groupBySQL !== null) {$sql .= $cr . $this->groupBySQL;}
         if ($this->havingSQL !== null) {$sql .= $cr . $this->havingSQL;}
@@ -169,18 +233,42 @@ class QueryBuilder
         return $sql;
     }
 
-    protected function execute ($sql, array $data = [])
+    public function getAffectedRows ()
+    {
+        return $this->affectedRows;
+    }
+
+    public function getTimeExecution ()
+    {
+        return $this->sql_time;
+    }
+
+    protected function executeSQL ($sql, array $data = [])
     {
         $stmt = null;
+        $start_time = microtime(true);
+        $this->sql_time = null;
 
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($data);
+            $this->sql_time = round(microtime(true) - $start_time, 4);
         } catch (\Exception $e) {
-            echo $e->getMessage();
+            Log::save(debug_backtrace(), [$e->getMessage(), $sql, $data]);
         }
 
         return $stmt;
+    }
+
+    protected function ParametersString (array $data): string
+    {
+        $string = '';
+        $keys = array_keys($data);
+
+        foreach ($keys as $key) {$string .= $key . ' = :' . $key . ' AND ';}
+        $string = substr($string, 0,-5);
+
+        return $string;
     }
 
 }
