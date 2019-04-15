@@ -1,16 +1,19 @@
 <?php
 
-function vd ($input)
+function vd ()
 {
-    echo '<pre>';
-    /** @noinspection ForgottenDebugOutputInspection */
-    var_dump($input);
-    echo '</pre>';
+    foreach (func_get_args() as $arg) {
+        echo '<pre>';
+        /** @noinspection ForgottenDebugOutputInspection */
+        var_dump($arg);
+        echo '</pre>' . chr(13).chr(10);
+    }
+
 }
 
-function dd ($input)
+function dd ()
 {
-    vd($input); die;
+    foreach (func_get_args() as $arg) {vd($arg);} die;
 }
 
 function getSQL ($path)

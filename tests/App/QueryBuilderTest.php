@@ -29,7 +29,7 @@ class QueryBuilderTest extends TestCase
         $this->db = null;
     }
 
-    /* select, bind, get, (getSQK, execute) */
+    /* execute, bind, get, (getSQK, executeSQL) */
     public function testSelectGet(): void
     {
         $assert = false;
@@ -39,24 +39,24 @@ class QueryBuilderTest extends TestCase
         ];
         $data = ['code1' => 'UKR', 'code2' => 'GBR'];
         $sql = 'SELECT Code, Name, IndepYear FROM country WHERE Code = :code1 OR Code = :code2';
-        $result = $this->db->select($sql)->bind($data)->get();
+        $result = $this->db->execute($sql)->bind($data)->get();
         if ($need_result === $result) {$assert = true;}
             else {vd2($need_result); vd2($result);}
         $this->assertTrue($assert);
     }
 
-    /* table, field, where, groupBy, having, orderBy, getSQL */
+    /* table, select, where, groupBy, having, orderBy, getSQL */
     public function testConstructorGetSQL(): void
     {
         $assert = false;
         $need_result = file_get_contents($this->root . '\tests\App\inc\testConstructorGetSQL.sql');
 
-        $result = $this->db->table('PIKALKA.people')
-            ->field('kadry_id, COUNT(*) cnt')
-            ->where('kadry_id = :id')
-            ->groupBy('kadry_id')
-            ->having('COUNT(*) > 1')
-            ->orderBy('kadry_id')
+        $result = $this->db->table('country')
+            ->select('IndepYear, COUNT(*) cnt')
+            ->where('IndepYear IS NOT NULL')
+            ->groupBy('IndepYear')
+            ->having('COUNT(*) > 10')
+            ->orderBy('IndepYear')
             ->getSQL();
         if ($need_result === $result) {$assert = true;}
             else {vd2($need_result); vd2($result);}
@@ -68,7 +68,7 @@ class QueryBuilderTest extends TestCase
         $assert = false;
         $need_result = ['Code' => 'CHN', 'Name' => 'China', 'IndepYear' => -1523];
         $sql = 'SELECT Code, Name, IndepYear FROM country WHERE IndepYear IS NOT NULL ORDER BY IndepYear';
-        $result = $this->db->select($sql)->first();
+        $result = $this->db->execute($sql)->first();
         if ($need_result === $result) {$assert = true;}
             else {vd2($need_result); vd2($result);}
         $this->assertTrue($assert);
@@ -78,10 +78,23 @@ class QueryBuilderTest extends TestCase
     {
         $assert = false;
         $need_result = ['Canada', 'United States'];
-        $sql = 'SELECT Name FROM country WHERE region = \'North America\' AND population > 100000 ORDER BY Name';
-        $result = $this->db->select($sql)->pluck('ID');
+        $data = ['region' => 'North America'];
+        $sql = 'SELECT name FROM country WHERE region = :region AND population > 100000 ORDER BY Name';
+        $result = $this->db->execute($sql)->bind($data)->pluck('name');
         if ($need_result === $result) {$assert = true;}
             else {vd2($need_result); vd2($result);}
+        $this->assertTrue($assert);
+    }
+
+    public function testPluck2(): void
+    {
+        $assert = false;
+        $need_result = ['CAN' => 'Canada', 'USA' => 'United States'];
+        $data = ['region' => 'North America'];
+        $sql = 'SELECT code, name FROM country WHERE region = :region AND population > 100000 ORDER BY Name';
+        $result = $this->db->execute($sql)->bind($data)->pluck('code', 'name');
+        if ($need_result === $result) {$assert = true;}
+        else {vd2($need_result); vd2($result);}
         $this->assertTrue($assert);
     }
 
@@ -89,8 +102,9 @@ class QueryBuilderTest extends TestCase
     {
         $assert = false;
         $need_result = 'Ukraine';
-        $sql = 'SELECT Name FROM country WHERE Code = \'UKR\'';
-        $result = $this->db->select($sql)->getCell();
+        $data = ['code' => 'UKR'];
+        $sql = 'SELECT Name FROM country WHERE Code = :code';
+        $result = $this->db->execute($sql)->bind($data)->getCell();
         if ($need_result === $result) {$assert = true;}
             else {vd2($need_result); vd2($result);}
         $this->assertTrue($assert);

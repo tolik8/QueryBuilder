@@ -1,6 +1,6 @@
-SELECT kadry_id, COUNT(*) cnt
-FROM PIKALKA.people
-WHERE kadry_id = :id
-GROUP BY kadry_id
-HAVING COUNT(*) > 1
-ORDER BY kadry_id
+SELECT IndepYear, COUNT(*) cnt
+FROM country
+WHERE IndepYear IS NOT NULL
+GROUP BY IndepYear
+HAVING COUNT(*) > 10
+ORDER BY IndepYear
