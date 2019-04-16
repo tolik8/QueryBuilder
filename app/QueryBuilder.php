@@ -38,8 +38,9 @@
  * commit();
  * rollback();
 
- * enableQueryLog(string $logName, bool $overwrite);
+ * enableQueryLog(string $logName);
  * disableQueryLog();
+ * clearQueryLog(string $logName);
  */
 
 namespace App;
@@ -59,7 +60,7 @@ class QueryBuilder
     protected $listenSQL;
     protected $logName;
     protected $logOverwrite;
-    protected $method; // конструктор или сырой RAW
+    protected $method; // конструктор table или сырой selectRaw
     protected $orderSQL;
     protected $pdo;
     protected $queryLog = false;
@@ -325,6 +326,11 @@ class QueryBuilder
         $this->queryLog = false;
     }
 
+    public function clearQueryLog (string $logName): void
+    {
+        file_put_contents(ROOT . '/logs/' . $logName . '.log', '');
+    }
+
     protected function executeSQL (string $sql, array $data = [])
     {
         $stmt = null;
@@ -353,7 +359,7 @@ class QueryBuilder
             if ($this->sql_time !== null) {$log_params['time'] = $this->sql_time;}
             if ($error_message !== null) {$log_params['message'] = $error_message;}
 
-            SQLqueryLog::save($this->logName, $this->logOverwrite, $log_params);
+            SQLqueryLog::save($this->logName, $log_params);
         }
 
         return $stmt;

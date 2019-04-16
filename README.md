@@ -1,9 +1,9 @@
 # QueryBuilder
 
 1. composer install
-2. ¬˚ÔÓÎÌËÚ¸ CreateDir.bat (‰Îˇ Œ— Windows)
-3. —ÓÁ‰‡Ú¸ Û˜Â·ÌÛ˛ ·‡ÁÛ ‰‡ÌÌ˚ı world ËÁ Ù‡ÈÎ‡ resources\world.zip -> world.sql
-4. œÂÂÈÚË ‚ Ô‡ÔÍÛ config
-5. —ÓÁ‰‡Ú¸ main.php Ì‡ ÓÒÌÓ‚‡ÌËË main.php.example
-6. Õ‡ÒÚÓËÚ¸ ÔÓ‰ÍÎ˛˜ÂÌËÂ Í Û˜Â·ÌÓÈ ·‡ÁÂ ‰‡ÌÌ˚ı ‚ Ù‡ÈÎÂ mysql.php
-7. ÃÓÊÌÓ ÚÂÒÚËÓ‚‡Ú¸ QueryBuilder ‚ Ù‡ÈÎÂ app\controllers\Home.php
+2. –í—ã–ø–æ–ª–Ω–∏—Ç—å CreateDir.bat (–¥–ª—è –û–° Windows)
+3. –°–æ–∑–¥–∞—Ç—å —É—á–µ–±–Ω—É—é –±–∞–∑—É –¥–∞–Ω–Ω—ã—Ö world –∏–∑ —Ñ–∞–π–ª–∞ resources\world.zip -> world.sql
+4. –ü–µ—Ä–µ–π—Ç–∏ –≤ –ø–∞–ø–∫—É config
+5. –°–æ–∑–¥–∞—Ç—å main.php –Ω–∞ –æ—Å–Ω–æ–≤–∞–Ω–∏–∏ main.php.example
+6. –ù–∞—Å—Ç—Ä–æ–∏—Ç—å –ø–æ–¥–∫–ª—é—á–µ–Ω–∏–µ –∫ —É—á–µ–±–Ω–æ–π –±–∞–∑–µ –¥–∞–Ω–Ω—ã—Ö –≤ —Ñ–∞–π–ª–µ mysql.php
+7. –ì–ª–∞–≤–Ω–∞—è —Å—Ç—Ä–∞–Ω–∏—Ü–∞ app\controllers\Home.php –≥–¥–µ —Å–æ–±—Å—Ç–≤–µ–Ω–Ω–æ –ø—Ä–∏–º–µ—Ä—ã –∏—Å–ø–æ–ª—å–∑–æ–≤–∞–Ω–∏—è –∫–æ–º–ø–æ–Ω–µ–Ω—Ç–∞ QueryBuilder

@@ -11,15 +11,16 @@ use PHPUnit\Framework\TestCase;
 
 class QueryBuilderTest extends TestCase
 {
-    private $db;
     protected $testTable;
+    private $db;
 
     protected function setUp()
     {
+        /** @noinspection PhpIncludeInspection */
         $db_config = include ROOT . '/config/mysql.php';
         $pdo = new \PDO($db_config['DSN'], $db_config['username'], $db_config['password'], $db_config['pdo_options']);
         $this->db = new QueryBuilder($pdo);
-        $this->testTable = 'tmp_20190416';
+        $this->testTable = 'tmp_18F987F1';
     }
 
     protected function tearDown()
@@ -38,8 +39,7 @@ class QueryBuilderTest extends TestCase
             $this->db->statement('CREATE TABLE ' . $this->testTable . ' (id INT (11), name VARCHAR (250))');
         }
         $result = $this->db->selectRaw($sql)->getCell();
-        if ($need_result === $result) {$assert = true;}
-        else {vd2($need_result); vd2($result);}
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
         $this->assertTrue($assert);
     }
 
@@ -61,8 +61,7 @@ class QueryBuilderTest extends TestCase
         $this->db->table($this->testTable)->insert($data1);
         $this->db->table($this->testTable)->insert($data2);
         $result = $this->db->table($this->testTable)->select('id, name')->get();
-        if ($need_result === $result) {$assert = true;}
-        else {vd2($need_result); vd2($result);}
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
         $this->assertTrue($assert);
     }
 
@@ -76,8 +75,7 @@ class QueryBuilderTest extends TestCase
         $this->db->table($this->testTable)->where('id = :id')->bind($data)->update($update);
         $result = $this->db->table($this->testTable)->select('name')
             ->where('id = :id')->bind($data)->getCell();
-        if ($need_result === $result) {$assert = true;}
-        else {vd2($need_result); vd2($result);}
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
         $this->assertTrue($assert);
     }
 
@@ -91,8 +89,7 @@ class QueryBuilderTest extends TestCase
         $this->db->table($this->testTable)->where('id = :id')->bind($data)->updateOrInsert($update);
         $result = $this->db->table($this->testTable)->select('name')
             ->where('id = :id')->bind($data)->getCell();
-        if ($need_result === $result) {$assert = true;}
-        else {vd2($need_result); vd2($result);}
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
         $this->assertTrue($assert);
     }
 
@@ -106,8 +103,7 @@ class QueryBuilderTest extends TestCase
         $this->db->table($this->testTable)->where('id = :id')->bind($data)->updateOrInsert($update);
         $result = $this->db->table($this->testTable)->select('name')
             ->where('id = :id')->bind($data)->getCell();
-        if ($need_result === $result) {$assert = true;}
-        else {vd2($need_result); vd2($result);}
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
         $this->assertTrue($assert);
     }
 
@@ -120,8 +116,7 @@ class QueryBuilderTest extends TestCase
         $this->db->table($this->testTable)->where('id = :id')->bind($data)->delete();
         $result = $this->db->table($this->testTable)->select('count(*)')
             ->where('id = :id')->bind($data)->getCell();
-        if ($need_result === $result) {$assert = true;}
-        else {vd2($need_result); vd2($result);}
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
         $this->assertTrue($assert);
     }
 
@@ -136,8 +131,7 @@ class QueryBuilderTest extends TestCase
         $data = ['id' => 4];
         $result = $this->db->table($this->testTable)->select('id, name')
             ->where('id < :id')->bind($data)->get();
-        if ($need_result === $result) {$assert = true;}
-            else {vd2($need_result); vd2($result);}
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
         $this->assertTrue($assert);
     }
 
@@ -154,8 +148,7 @@ class QueryBuilderTest extends TestCase
             ->having('COUNT(*) > 10')
             ->orderBy('IndepYear')
             ->getSQL();
-        if ($need_result === $result) {$assert = true;}
-            else {vd2($need_result); vd2($result);}
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
         $this->assertTrue($assert);
     }
 
@@ -165,8 +158,7 @@ class QueryBuilderTest extends TestCase
         $assert = false;
         $need_result = ['id' => 4, 'name' => 'test4'];
         $result = $this->db->table($this->testTable)->orderBy('id DESC')->first();
-        if ($need_result === $result) {$assert = true;}
-            else {vd2($need_result); vd2($result);}
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
         $this->assertTrue($assert);
     }
 
@@ -176,8 +168,7 @@ class QueryBuilderTest extends TestCase
         $assert = false;
         $need_result = [1, 3, 4];
         $result = $this->db->table($this->testTable)->pluck('id');
-        if ($need_result === $result) {$assert = true;}
-            else {vd2($need_result); vd2($result);}
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
         $this->assertTrue($assert);
     }
 
@@ -187,8 +178,16 @@ class QueryBuilderTest extends TestCase
         $assert = false;
         $need_result = [1 => 'test1', 3 => 'updated2', 4 => 'test4'];
         $result = $this->db->table($this->testTable)->pluck('id', 'name');
-        if ($need_result === $result) {$assert = true;}
-        else {vd2($need_result); vd2($result);}
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
+        $this->assertTrue($assert);
+    }
+
+    public function testDropTable(): void
+    {
+        $assert = false;
+        $need_result = '00000';
+        $result = $this->db->statement('DROP TABLE ' . $this->testTable);
+        if ($need_result === $result) {$assert = true;} else {vd($need_result); vd($result);}
         $this->assertTrue($assert);
     }
 

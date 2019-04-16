@@ -1,4 +1,4 @@
-SELECT Code, Name, Population
+SELECT code, name, population
 FROM country 
 WHERE region = :region
-ORDER BY Name
+ORDER BY name

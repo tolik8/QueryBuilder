@@ -4,11 +4,9 @@ namespace App;
 
 class SQLqueryLog
 {
-    public static function save (string $logName, bool $overwrite, array $data): void
+    public static function save (string $logName, array $data): void
     {
         $filename = ROOT . '/logs/' . $logName . '.log';
-
-        if ($overwrite) {@file_put_contents($filename, '');}
 
         $content = date('Y-m-d') . ' ' . date('H:i:s') . CR.CR;
 

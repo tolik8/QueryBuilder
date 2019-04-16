@@ -1,13 +1,10 @@
 <?php
 
-$root = $_SERVER['DOCUMENT_ROOT'];
-if ($root === '') {$root = 'D:/www/qb.loc';}
-include $root . '/config/main.php';
+$pattern = '#^.+(?=\\\\tests\\\\App)#';
+preg_match($pattern, __DIR__, $matches);
+define('ROOT', $matches[0]);
 
-include ROOT . '/app/functions.php';
-include ROOT . '/vendor/autoload.php';
-
-function vd2 ($input)
+function vd ($input)
 {
     /** @noinspection ForgottenDebugOutputInspection */
     var_dump($input);
