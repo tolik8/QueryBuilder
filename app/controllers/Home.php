@@ -8,21 +8,20 @@ class Home extends Controller
     {
         $db = $this->db;
 
-        /*$sql = getSQL('country.sql');
-        $countries = $this->db->execute($sql, ['region' => 'Eastern Europe'])->get();
-        vd($countries);*/
+        $db->enableQueryLog('Home', true);
 
-        /*$data = [
+        $sql = getSQL('country.sql');
+        $countries = $this->db->selectRaw($sql, ['region' => 'Eastern Europe'])->get();
+        vd($countries);
+
+        $db->disableQueryLog();
+
+        $data = [
             ['ID' => '23', 'NAME' => 'test2'],
-            ['ID' => '24', 'NAME' => 'test3'],
         ];
-        $affectedRows = $db->table('test')->insert($data);
+        $affectedRows = $db->table('test2')->insert($data);
         vd($affectedRows);
-        vd('LastInsertId ' . $db->getLastInsertId());*/
-
-        /*$data = ['ID' => '24'];
-        $affectedRows = $db->table('test')->delete($data);
-        vd($affectedRows);*/
+        vd('LastInsertId ' . $db->getLastInsertId());
 
         /*$where = ['id' => '22'];
         $update = ['name' => 'qqqq'];
@@ -37,14 +36,24 @@ class Home extends Controller
 
         $data = ['region' => 'North America'];
         $sql = 'SELECT name FROM country WHERE region = :region AND population > 100000 ORDER BY Name';
-        $result = $db->execute($sql)->bind($data)->pluck('name');
+        $result = $db->selectRaw($sql)->bind($data)->pluck('name');
         vd($result);*/
 
-        $where = ['id' => '22'];
+        /*$where = ['id' => '22'];
         $update = ['name' => 'a3', 'email' => 'test2@gmail.com'];
         $affectedRows = $db->table('test')->where('id = :id')->listen()
             ->bind(array_merge($where, $update))->updateOrInsert($update);
-        vd($affectedRows);
+        vd($affectedRows);*/
+
+        /*$data = ['id' => '1', 'name' => 'test'];
+        $affectedRows = $db->table('test')->insert($data);
+        vd($affectedRows);*/
+
+        /*$data = ['id' => 3];
+        $update = ['name' => 'updated'];
+        $affectedRows = $db->table('test')->where('id = :id')->listen()
+            ->bind($data)->update($update);
+        vd($affectedRows);*/
     }
 
 }

@@ -8,7 +8,6 @@ function vd ()
         var_dump($arg);
         echo '</pre>' . chr(13).chr(10);
     }
-
 }
 
 function dd ()
@@ -18,7 +17,7 @@ function dd ()
 
 function getSQL ($path)
 {
-    $sql_file = $_SERVER['DOCUMENT_ROOT'] . '/sql/' . $path;
+    $sql_file = ROOT . '/sql/' . $path;
     if (file_exists($sql_file)) {
         $content = file_get_contents($sql_file);
     } else {
@@ -30,7 +29,7 @@ function getSQL ($path)
 
 function filetime ($file)
 {
-    $filename = $_SERVER['DOCUMENT_ROOT'] . '/public/' . $file;
+    $filename = ROOT . '/public/' . $file;
     if (file_exists($filename)) {
         return $file . '?tm=' . filemtime($filename);
     }
