@@ -30,6 +30,7 @@
  * getAffectedRows();
  * getErrorsCount();
  * getLastInsertId();
+ * getNewUUID();
  + getSQL();
  * getTimeExecution();
 
@@ -283,6 +284,11 @@ class QueryBuilder
     public function getLastInsertId ()
     {
         return $this->lastInsertId;
+    }
+
+    public function getNewUUID (): string
+    {
+        return $this->selectRaw('SELECT UUID()')->getCell();
     }
 
     public function getSQL (): string
