@@ -168,13 +168,25 @@ class QueryBuilder
     }
 
     /* Получить массив значений одного столбца (если два столбца то пара ключ-значение) */
-    public function pluck (string $key, string $value = null): array
+    public function pluck (string $key = null, string $value = null): array
     {
-        if ($value === null) {$this->fieldSQL = $key;} else {$this->fieldSQL = $key . ', ' . $value;}
+        if ($key !== null) {
+            if ($value === null) {
+                $this->fieldSQL = $key;
+            } else {
+                $this->fieldSQL = $key . ', ' . $value;
+            }
+        }
         $sql = $this->getSQL();
         $stmt = $this->executeSQL($sql, $this->bindData);
         if ($stmt === null) {return [];}
-        $rows = $stmt->fetchAll();
+        if ($key === null) {
+            $rows = $stmt->fetchAll(\PDO::FETCH_NUM);
+            /** @noinspection CallableParameterUseCaseInTypeContextInspection */
+            $key = 0;
+        } else {
+            $rows = $stmt->fetchAll();
+        }
         $result = [];
         if ($value === null) {
             foreach ($rows as $row) {$result[] = $row[$key];}
