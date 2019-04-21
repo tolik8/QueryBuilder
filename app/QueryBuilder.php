@@ -51,7 +51,6 @@ class QueryBuilder
     protected $affectedRows;
     protected $bindData = [];
     protected $bindDataForUpdate = [];
-    protected $cr;
     protected $errors_before_transaction = 0;
     protected $errors_count = 0;
     protected $fieldSQL;
@@ -74,7 +73,6 @@ class QueryBuilder
     {
         $this->pdo = $pdo;
         $this->fieldSQL = '*';
-        $this->cr = chr(13) . chr(10);
     }
 
     public function statement (string $sql, array $data = []): string
@@ -232,12 +230,11 @@ class QueryBuilder
     */
     public function update (array $dataForUpdate): int
     {
-        $cr = $this->cr;
         $keys = array_keys($dataForUpdate);
         $string = '';
         foreach ($keys as $key) {$string .= $key . ' = :' . $key . ', ';}
         $update_string = rtrim($string, ', ');
-        $sql = 'UPDATE ' . $this->tableSQL . $cr . 'SET ' . $update_string . $cr . 'WHERE ' . $this->whereSQL;
+        $sql = 'UPDATE ' . $this->tableSQL . PHP_EOL . 'SET ' . $update_string . PHP_EOL . 'WHERE ' . $this->whereSQL;
         $stmt = $this->executeSQL($sql, array_merge($this->bindData, $dataForUpdate));
         if ($stmt === null) {return 0;}
         $this->affectedRows = $stmt->rowCount();
@@ -261,10 +258,9 @@ class QueryBuilder
 
     public function delete (): int
     {
-        $cr = $this->cr;
         $string = $this->parametersString($this->bindData);
         /** @noinspection SqlWithoutWhere */
-        $sql = 'DELETE FROM ' . $this->tableSQL . $cr . 'WHERE ' . $string;
+        $sql = 'DELETE FROM ' . $this->tableSQL . PHP_EOL . 'WHERE ' . $string;
         $stmt = $this->executeSQL($sql, $this->bindData);
         if ($stmt === null) {return 0;}
         $this->affectedRows = $stmt->rowCount();
@@ -294,13 +290,12 @@ class QueryBuilder
     public function getSQL (): string
     {
         if ($this->method === 'Raw') {return $this->sql;}
-        $cr = $this->cr;
 
-        $sql = 'SELECT ' . $this->fieldSQL . $cr . 'FROM ' . $this->tableSQL;
-        if ($this->whereSQL !== null) {$sql .= $cr . 'WHERE ' . $this->whereSQL;}
-        if ($this->groupBySQL !== null) {$sql .= $cr . 'GROUP BY ' . $this->groupBySQL;}
-        if ($this->havingSQL !== null) {$sql .= $cr . 'HAVING ' . $this->havingSQL;}
-        if ($this->orderSQL !== null) {$sql .= $cr . 'ORDER BY ' . $this->orderSQL;}
+        $sql = 'SELECT ' . $this->fieldSQL . PHP_EOL . 'FROM ' . $this->tableSQL;
+        if ($this->whereSQL !== null) {$sql .= PHP_EOL . 'WHERE ' . $this->whereSQL;}
+        if ($this->groupBySQL !== null) {$sql .= PHP_EOL . 'GROUP BY ' . $this->groupBySQL;}
+        if ($this->havingSQL !== null) {$sql .= PHP_EOL . 'HAVING ' . $this->havingSQL;}
+        if ($this->orderSQL !== null) {$sql .= PHP_EOL . 'ORDER BY ' . $this->orderSQL;}
 
         return $sql;
     }
@@ -385,10 +380,9 @@ class QueryBuilder
 
     protected function insertData (array $data): int
     {
-        $cr = $this->cr;
         $keys = implode(', ', array_keys($data));
         $values = ':' . implode(', :', array_keys($data));
-        $sql = 'INSERT INTO ' . $this->tableSQL . ' (' .$keys . ')' . $cr . 'VALUES (' . $values . ')';
+        $sql = 'INSERT INTO ' . $this->tableSQL . ' (' .$keys . ')' . PHP_EOL . 'VALUES (' . $values . ')';
         $stmt = $this->executeSQL($sql, $data);
         if ($stmt === null) {return 0;}
         $this->lastInsertId = $this->pdo->lastInsertId();
