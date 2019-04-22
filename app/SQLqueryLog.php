@@ -22,8 +22,8 @@ class SQLqueryLog
                     $content .= ($key .': '. $value) . PHP_EOL;
                 }
             }
+            $content .= PHP_EOL;
         }
-        $content .= PHP_EOL;
 
         $content .= '====================================================================' . PHP_EOL;
 
