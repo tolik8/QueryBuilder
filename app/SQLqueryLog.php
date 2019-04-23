@@ -4,7 +4,7 @@ namespace App;
 
 class SQLqueryLog
 {
-    public static function save (string $logName, array $data): void
+    public static function save(string $logName, array $data): void
     {
         $filename = ROOT . '/logs/' . $logName . '.log';
 
@@ -30,4 +30,5 @@ class SQLqueryLog
         $result = @file_put_contents($filename, $content, FILE_APPEND);
         if (!$result) {echo 'Error writing file: ' . $filename;}
     }
+
 }

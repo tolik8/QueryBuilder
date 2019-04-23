@@ -4,7 +4,7 @@ namespace App\controllers;
 
 class Home extends Controller
 {
-     public function index (): void
+     public function index(): void
     {
         $db = $this->db;
 
@@ -57,7 +57,7 @@ class Home extends Controller
             ->bind($data)->pluck('code');
         vd($codes);
 
-        echo '<hr>Получить ассофиативный массив из таблицы методом "pluck"<br>';
+        echo '<hr>Получить ассоциативный массив из таблицы методом "pluck"<br>';
         $data = ['region' => 'Eastern Europe'];
         $codes = $db->table('country')->where('region = :region')
             ->bind($data)->pluck('code', 'name');

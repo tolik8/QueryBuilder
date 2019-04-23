@@ -4,7 +4,7 @@ namespace App;
 
 class SQLerrorLog
 {
-    public static function save (array $debugs, array $data): void
+    public static function save(array $debugs, array $data): void
     {
         $log_config = require ROOT . '/config/logger.php';
         $directory  = $log_config['Directory'];
@@ -52,4 +52,5 @@ class SQLerrorLog
         $result = @file_put_contents($log_filename, $content, FILE_APPEND);
         if (!$result) {echo 'Error writing file: ' . $log_filename;}
     }
+
 }

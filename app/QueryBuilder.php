@@ -59,7 +59,6 @@ class QueryBuilder
     protected $lastInsertId;
     protected $listenSQL;
     protected $logName;
-    protected $logOverwrite;
     protected $method; // конструктор table или сырой selectRaw
     protected $orderSQL;
     protected $pdo;
@@ -69,19 +68,19 @@ class QueryBuilder
     protected $tableSQL;
     protected $whereSQL;
 
-    public function __construct (\PDO $pdo)
+    public function __construct(\PDO $pdo)
     {
         $this->pdo = $pdo;
         $this->fieldSQL = '*';
     }
 
-    public function statement (string $sql, array $data = []): string
+    public function statement(string $sql, array $data = []): string
     {
         $stmt = $this->executeSQL($sql, $data);
         return $stmt->errorCode();
     }
 
-    public function selectRaw (string $sql, array $data = [])
+    public function selectRaw(string $sql, array $data = [])
     {
         $this->sql = $sql;
         $this->bindData = $data;
@@ -90,7 +89,7 @@ class QueryBuilder
         return $this;
     }
 
-    public function table (string $tableName)
+    public function table(string $tableName)
     {
         $this->method = 'Constructor';
         $this->listenSQL = false;
@@ -105,51 +104,51 @@ class QueryBuilder
         return $this;
     }
 
-    public function select (string $fields = '*')
+    public function select(string $fields = '*')
     {
         $this->fieldSQL = $fields;
         return $this;
     }
 
-    public function where (string $where)
+    public function where(string $where)
     {
         $this->whereSQL = $where;
         return $this;
     }
 
-    public function groupBy (string $groupBy)
+    public function groupBy(string $groupBy)
     {
         $this->groupBySQL = $groupBy;
         return $this;
     }
 
-    public function having (string $having)
+    public function having(string $having)
     {
         $this->havingSQL = $having;
         return $this;
     }
 
-    public function orderBy (string $orderBy)
+    public function orderBy(string $orderBy)
     {
         $this->orderSQL = $orderBy;
         return $this;
     }
 
-    public function bind (array $data)
+    public function bind(array $data)
     {
         $this->bindData = $data;
         return $this;
     }
 
     /* Журналирование/прослушка SQL запросов */
-    public function listen ()
+    public function listen()
     {
         $this->listenSQL = true;
         return $this;
     }
 
     /* Получить все записи */
-    public function get (): array
+    public function get(): array
     {
         $sql = $this->getSQL();
         $stmt = $this->executeSQL($sql, $this->bindData);
@@ -158,7 +157,7 @@ class QueryBuilder
     }
 
     /* Получить первую строку */
-    public function first (): array
+    public function first(): array
     {
         $sql = $this->getSQL();
         $stmt = $this->executeSQL($sql, $this->bindData);
@@ -167,7 +166,7 @@ class QueryBuilder
     }
 
     /* Получить массив значений одного столбца (если два столбца то пара ключ-значение) */
-    public function pluck (string $key = null, string $value = null): array
+    public function pluck(string $key = null, string $value = null): array
     {
         if ($key !== null) {
             if ($value === null) {
@@ -196,7 +195,7 @@ class QueryBuilder
     }
 
     /* Получить значение первого столпца первой строки */
-    public function getCell (string $fieldName = '')
+    public function getCell(string $fieldName = '')
     {
         if ($fieldName !== '') {$this->fieldSQL = $fieldName;}
         $sql = $this->getSQL();
@@ -206,7 +205,7 @@ class QueryBuilder
         return $row[0];
     }
 
-    public function insert (array $data): int
+    public function insert(array $data): int
     {
         $this->lastInsertId = 0;
 
@@ -228,7 +227,7 @@ class QueryBuilder
     $update = ['name' => 'qqqq'];
     $affectedRows = $db->table('test')->where('id = :id')->bind($data)->update($update);
     */
-    public function update (array $dataForUpdate): int
+    public function update(array $dataForUpdate): int
     {
         $keys = array_keys($dataForUpdate);
         $string = '';
@@ -241,7 +240,7 @@ class QueryBuilder
         return $this->affectedRows;
     }
 
-    public function updateOrInsert (array $dataForUpdate): int
+    public function updateOrInsert(array $dataForUpdate): int
     {
         $sql = 'SELECT COUNT(*) FROM ' . $this->tableSQL . ' WHERE ' . $this->whereSQL;
         $stmt = $this->executeSQL($sql, $this->bindData);
@@ -256,7 +255,7 @@ class QueryBuilder
         return $this->affectedRows;
     }
 
-    public function delete (): int
+    public function delete(): int
     {
         $string = $this->parametersString($this->bindData);
         /** @noinspection SqlWithoutWhere */
@@ -267,27 +266,27 @@ class QueryBuilder
         return $this->affectedRows;
     }
 
-    public function getAffectedRows ()
+    public function getAffectedRows()
     {
         return $this->affectedRows;
     }
 
-    public function getErrorsCount (): int
+    public function getErrorsCount(): int
     {
         return $this->errors_count;
     }
 
-    public function getLastInsertId ()
+    public function getLastInsertId()
     {
         return $this->lastInsertId;
     }
 
-    public function getNewUUID (): string
+    public function getNewUUID(): string
     {
         return $this->selectRaw('SELECT UUID()')->getCell();
     }
 
-    public function getSQL (): string
+    public function getSQL(): string
     {
         if ($this->method === 'Raw') {return $this->sql;}
 
@@ -300,51 +299,50 @@ class QueryBuilder
         return $sql;
     }
 
-    public function getTimeExecution ()
+    public function getTimeExecution()
     {
         return $this->sql_time;
     }
 
-    public function beginTransaction (): void
+    public function beginTransaction(): void
     {
         $this->errors_before_transaction = $this->errors_count;
         $this->pdo->beginTransaction();
     }
 
-    public function endTransaction (): void
+    public function endTransaction(): void
     {
         if ($this->errors_before_transaction === $this->errors_count)
         {$this->pdo->commit();} else {$this->pdo->rollBack();}
     }
 
-    public function commit (): void
+    public function commit(): void
     {
         $this->pdo->commit();
     }
 
-    public function rollback (): void
+    public function rollback(): void
     {
         $this->pdo->rollBack();
     }
 
-    public function enableQueryLog (string $logName, bool $overwrite = false): void
+    public function enableQueryLog(string $logName): void
     {
         $this->logName = $logName;
-        $this->logOverwrite = $overwrite;
         $this->queryLog = true;
     }
 
-    public function disableQueryLog (): void
+    public function disableQueryLog(): void
     {
         $this->queryLog = false;
     }
 
-    public function clearQueryLog (string $logName): void
+    public function clearQueryLog(string $logName): void
     {
         file_put_contents(ROOT . '/logs/' . $logName . '.log', '');
     }
 
-    protected function executeSQL (string $sql, array $data = [])
+    protected function executeSQL(string $sql, array $data = [])
     {
         $stmt = null;
         $start_time = microtime(true);
@@ -378,7 +376,7 @@ class QueryBuilder
         return $stmt;
     }
 
-    protected function insertData (array $data): int
+    protected function insertData(array $data): int
     {
         $keys = implode(', ', array_keys($data));
         $values = ':' . implode(', :', array_keys($data));
@@ -389,7 +387,7 @@ class QueryBuilder
         return $stmt->rowCount();
     }
 
-    protected function parametersString (array $data): string
+    protected function parametersString(array $data): string
     {
         $string = '';
         $keys = array_keys($data);

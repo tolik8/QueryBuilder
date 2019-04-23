@@ -8,8 +8,9 @@ class Controller
 {
     protected $db;
 
-    public function __construct (QueryBuilder $db)
+    public function __construct(QueryBuilder $db)
     {
         $this->db = $db;
     }
+
 }

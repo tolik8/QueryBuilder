@@ -1,6 +1,6 @@
 <?php
 
-function vd ()
+function vd()
 {
     foreach (func_get_args() as $arg) {
         echo '<pre>';
@@ -10,12 +10,12 @@ function vd ()
     }
 }
 
-function dd ()
+function dd()
 {
     foreach (func_get_args() as $arg) {vd($arg);} die;
 }
 
-function getSQL ($path)
+function getSQL($path)
 {
     $sql_file = ROOT . '/sql/' . $path;
     if (file_exists($sql_file)) {
@@ -27,7 +27,7 @@ function getSQL ($path)
     return $content;
 }
 
-function filetime ($file)
+function filetime($file)
 {
     $filename = ROOT . '/public/' . $file;
     if (file_exists($filename)) {
