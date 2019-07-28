@@ -354,8 +354,7 @@ class QueryBuilder
 
         try {
             $stmt = $this->pdo->prepare($sql);
-            /* Если испольовать функцию BindValue то не работают запросы, где один параметр используется несколько раз */
-            foreach ($data as $key => $value) {$stmt->bindParam($key, $value);}
+            foreach ($data as $key => $value) {$stmt->bindValue($key, $value);}
             $stmt->execute();
             $this->sql_time = round(microtime(true) - $start_time, 4);
             if ($this->listenSQL) {vd('SQL time: ' . $this->sql_time);}
